@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strength &amp; Weakness — Interview Practice for IT Freshers</title>
+<style>
+  :root{
+    --card: rgba(255,255,255,.06);
+    --stroke: rgba(255,255,255,.12);
+    --text: #eaf0ff;
+    --muted: #9aa7c7;
+    --accent: #7c5cff;
+    --accent2: #22d3ee;
+    --good: #34d399;
+    --warn: #fbbf24;
+    --bad: #fb7185;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1100px 600px at 12% -5%, #1d1150 0%, transparent 60%),
+      radial-gradient(900px 700px at 95% 105%, #05303f 0%, transparent 60%),
+      #0a0e1a;
+    overflow:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- progress bar ---------- */
+  .progress{
+    position:fixed; top:0; left:0; right:0; height:4px;
+    background:rgba(255,255,255,.07); z-index:50;
+  }
+  .progress #bar{
+    height:100%; width:5%;
+    background:linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius:0 4px 4px 0;
+    transition:width .4s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 0 18px rgba(124,92,255,.8);
+  }
+
+  /* ---------- deck ---------- */
+  .deck{position:fixed; inset:0;}
+
+  .slide{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    justify-content:center; align-items:center;
+    padding:64px 22px 108px;
+    opacity:0; visibility:hidden;
+    transform:translateY(26px) scale(.985);
+    transition:opacity .45s ease, transform .45s ease, visibility .45s;
+    overflow-y:auto;
+  }
+  .slide.active{opacity:1; visibility:visible; transform:none;}
+
+  .wrap{width:100%; max-width:960px;}
+
+  /* entrance animation */
+  @keyframes rise{from{opacity:0; transform:translateY(16px);} to{opacity:1; transform:none;}}
+  .slide.active .wrap > *{animation:rise .5s ease backwards;}
+  .slide.active .wrap > *:nth-child(2){animation-delay:.07s}
+  .slide.active .wrap > *:nth-child(3){animation-delay:.14s}
+  .slide.active .wrap > *:nth-child(4){animation-delay:.21s}
+  .slide.active .wrap > *:nth-child(5){animation-delay:.28s}
+  .slide.active .wrap > *:nth-child(6){animation-delay:.35s}
+
+  /* ---------- typography ---------- */
+  h1{
+    font-size:clamp(38px, 7vw, 66px);
+    line-height:1.05;
+    letter-spacing:-1.5px;
+    background:linear-gradient(100deg,#ffffff 10%, #a78bfa 55%, #22d3ee 95%);
+    -webkit-background-clip:text; background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  h2{
+    font-size:clamp(25px, 4vw, 38px);
+    letter-spacing:-.8px;
+    line-height:1.15;
+  }
+  .kicker{
+    font-size:12px; letter-spacing:2.4px; text-transform:uppercase;
+    color:var(--accent2); font-weight:700; margin-bottom:4px;
+  }
+  .lead{color:var(--muted); font-size:clamp(15px,2vw,19px); line-height:1.55;}
+  .small{color:#6f7da0; font-size:13.5px; letter-spacing:.4px;}
+
+  /* ---------- icon badge ---------- */
+  .icon{
+    width:98px; height:98px; border-radius:30px;
+    display:grid; place-items:center; font-size:47px; line-height:1;
+    background:linear-gradient(145deg, rgba(124,92,255,.38), rgba(34,211,238,.16));
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 20px 45px -20px rgba(124,92,255,.95), inset 0 1px 0 rgba(255,255,255,.22);
+    margin-bottom:8px;
+  }
+  .icon.sm{width:76px; height:76px; font-size:36px; border-radius:23px; margin:0; flex:0 0 auto;}
+
+  .center{display:flex; flex-direction:column; align-items:center; text-align:center; gap:14px;}
+
+  .head{display:flex; align-items:center; gap:18px; margin-bottom:20px;}
+
+  /* ---------- bullet cards ---------- */
+  .points{list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .points li{
+    display:flex; gap:14px; align-items:flex-start;
+    background:var(--card); border:1px solid var(--stroke);
+    padding:13px 17px; border-radius:15px;
+    font-size:clamp(14.5px, 1.7vw, 16.5px); line-height:1.5;
+  }
+  .points li .emo{font-size:23px; line-height:1.15; flex:0 0 auto;}
+  .points li b{color:#fff; font-weight:700;}
+
+  /* ---------- ideal answer box ---------- */
+  .answer{
+    margin-top:16px; padding:16px 20px 18px;
+    border-radius:16px;
+    background:linear-gradient(135deg, rgba(52,211,153,.13), rgba(34,211,238,.07));
+    border:1px solid rgba(52,211,153,.32);
+    border-left:5px solid var(--good);
+  }
+  .answer .tag{
+    display:inline-block; font-size:11.5px; font-weight:800; letter-spacing:1.8px;
+    text-transform:uppercase; color:var(--good); margin-bottom:8px;
+  }
+  .answer p{
+    font-size:clamp(14.5px,1.7vw,16.5px); line-height:1.62; color:#dbe7ff; font-style:italic;
+  }
+
+  /* ---------- warning / note ---------- */
+  .note{
+    margin-top:14px; padding:12px 18px; border-radius:14px;
+    background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3);
+    font-size:14.5px; line-height:1.5; color:#ffe9b8;
+  }
+  .note b{color:var(--warn);}
+
+  .badlist li{background:rgba(251,113,133,.08); border-color:rgba(251,113,133,.28);}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed; bottom:22px; left:50%; transform:translateX(-50%);
+    display:flex; align-items:center; gap:12px; z-index:60;
+    background:rgba(12,17,32,.72);
+    border:1px solid var(--stroke);
+    padding:8px 12px; border-radius:999px;
+    backdrop-filter:blur(14px);
+    box-shadow:0 14px 40px -18px #000;
+  }
+  nav button{
+    width:40px; height:40px; border-radius:50%;
+    border:1px solid var(--stroke);
+    background:rgba(255,255,255,.07);
+    color:#fff; font-size:17px; cursor:pointer;
+    transition:.2s; display:grid; place-items:center;
+  }
+  nav button:hover:not(:disabled){background:linear-gradient(140deg,var(--accent),var(--accent2)); transform:translateY(-2px);}
+  nav button:disabled{opacity:.25; cursor:not-allowed;}
+  #counter{
+    font-size:13.5px; font-variant-numeric:tabular-nums;
+    color:var(--muted); min-width:64px; text-align:center; letter-spacing:1px;
+  }
+
+  .hint{
+    position:fixed; bottom:30px; right:24px; z-index:55;
+    font-size:12px; color:#5b6788; letter-spacing:.6px;
+  }
+
+  @media (max-width:640px){
+    .slide{padding:56px 16px 104px;}
+    .icon{width:80px;height:80px;font-size:38px;border-radius:24px;}
+    .icon.sm{width:60px;height:60px;font-size:29px;border-radius:18px;}
+    .head{gap:13px; margin-bottom:14px;}
+    .hint{display:none;}
+    .points li{padding:11px 13px; gap:11px;}
+    .answer{padding:13px 15px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="progress"><div id="bar"></div></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1 -->
+  <section class="slide active">
+    <div class="wrap center">
+      <div class="icon">🎯</div>
+      <h1>Strength &amp; Weakness</h1>
+      <p class="lead">The interview question every IT fresher fears —<br>and exactly how to own it.</p>
+      <p class="small">20 slides · Real scripts · Zero fluff</p>
+    </div>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🕵️</div>
+        <div>
+          <p class="kicker">The truth</p>
+          <h2>Why do they even ask this?</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">❌</span><span>They are <b>not</b> looking for a perfect human. Nobody is.</span></li>
+        <li><span class="emo">🪞</span><span><b>Self-awareness</b> — do you actually know yourself?</span></li>
+        <li><span class="emo">📈</span><span><b>Growth mindset</b> — are you fixing your weak spots?</span></li>
+        <li><span class="emo">🗣️</span><span><b>Communication</b> — can you explain something clearly in 30–60 seconds?</span></li>
+        <li><span class="emo">🧩</span><span><b>Job fit</b> — does your strength match what the role needs?</span></li>
+        <li><span class="emo">🚩</span><span>Red flags for them: “I have no weakness” or “I'm a perfectionist” 😴</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🏆</div>
+        <div>
+          <p class="kicker">Foundation</p>
+          <h2>The 3 Golden Rules</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">1️⃣</span><span><b>BE REAL</b> — pick a genuine weakness. Not “I work too hard” 😅</span></li>
+        <li><span class="emo">2️⃣</span><span><b>BE RELEVANT</b> — strength must match the role. Java role → problem solving, not “I sing well”.</span></li>
+        <li><span class="emo">3️⃣</span><span><b>BE IMPROVING</b> — always end with the action + the progress.</span></li>
+      </ul>
+      <div class="note">💡 <b>Simple rule:</b> Strength → <b>prove it</b>. Weakness → <b>show the fix</b>.</div>
+    </div>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🧪</div>
+        <div>
+          <p class="kicker">Formula 1</p>
+          <h2>Strength = C · P · R</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">🅲</span><span><b>Claim</b> — name the strength in one line.</span></li>
+        <li><span class="emo">🅿️</span><span><b>Proof</b> — one real example: project, bug, college work, self-learning.</span></li>
+        <li><span class="emo">🆁</span><span><b>Result</b> — what actually happened because of it.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“My biggest strength is problem-solving. During my final-year project, our login page kept failing on slow networks. I broke the issue into steps, checked the logs, and found the API timeout was too short. I fixed it and the failure rate dropped to almost zero.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">😴</div>
+        <div>
+          <p class="kicker">Formula 2</p>
+          <h2>Weakness = N · A · P</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">🅽</span><span><b>Name</b> — say it honestly, in one sentence. No drama.</span></li>
+        <li><span class="emo">🅰️</span><span><b>Action</b> — what are you actively doing about it?</span></li>
+        <li><span class="emo">🅿️</span><span><b>Progress</b> — what has improved so far?</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I used to hesitate to ask for help and would spend hours stuck alone. Now I time-box myself to 30 minutes, then ask a senior or post a clear question. It has made me much faster and I've learned a lot from others.”</p>
+      </div>
+      <div class="note">⏱️ <b>Keep it 20–30 seconds.</b> Never spend more time on your weakness than your strength.</div>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🧩</div>
+        <div>
+          <p class="kicker">Strength #1</p>
+          <h2>Problem Solving</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">🔍</span><span><b>How to talk:</b> pick one bug you actually fixed. Break it down step by step.</span></li>
+        <li><span class="emo">🛠️</span><span>Mention tools: debugging, logs, Google, Stack Overflow, Git history.</span></li>
+        <li><span class="emo">📊</span><span>End with a result — time saved, bug gone, feature working.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I'm strong at breaking problems down. In my mini-project, the app kept crashing on login. Instead of guessing, I checked the logs, isolated the failing function, and found I wasn't handling a null response. I added validation and it never crashed again. That habit of isolating one piece at a time really helps me.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🚀</div>
+        <div>
+          <p class="kicker">Strength #2</p>
+          <h2>Fast Learner / Self-Taught</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">📚</span><span><b>How to talk:</b> name a skill you learned outside college — React, Git, DSA, SQL, a course.</span></li>
+        <li><span class="emo">🛠️</span><span>Show the proof: a small project, a GitHub repo, a certificate.</span></li>
+        <li><span class="emo">⏳</span><span>Give a timeline — “in 3 weeks I built…” sounds way better than “I learn fast”.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I pick up new tech quickly. Our project needed a REST API and none of us knew Spring Boot. I gave myself two weeks — followed the official docs, built a small CRUD app first, then applied it to our project. We delivered on time and I now use it comfortably.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🤝</div>
+        <div>
+          <p class="kicker">Strength #3</p>
+          <h2>Teamwork &amp; Communication</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">👥</span><span><b>How to talk:</b> use a group project. What was <b>your</b> role?</span></li>
+        <li><span class="emo">🌿</span><span>Mention Git branches, code reviews, daily standups, task boards.</span></li>
+        <li><span class="emo">💬</span><span>Show you handled a disagreement or helped a teammate.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I communicate well in a team. In our 4-member project, two of us disagreed on the database design. I set up a quick call, we listed pros and cons on a shared doc, and agreed on a normalized design. We finished a week early and I made sure everyone's code was reviewed before merging.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">📅</div>
+        <div>
+          <p class="kicker">Strength #4</p>
+          <h2>Consistency &amp; Discipline</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">🔥</span><span><b>How to talk:</b> daily DSA, 100 days of code, GitHub streak, notes habit.</span></li>
+        <li><span class="emo">📈</span><span>Numbers win: “120 problems in 4 months”, “60-day streak”.</span></li>
+        <li><span class="emo">🎯</span><span>Link it to work: “that's how I'll keep up with new tech here.”</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I'm consistent. I solved at least one coding problem every day for four months — around 130 problems total — and kept a daily GitHub streak. Some days it was just 20 minutes, but it built my fundamentals. I think that discipline will help me ramp up quickly on real projects.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🔍</div>
+        <div>
+          <p class="kicker">Strength #5</p>
+          <h2>Attention to Detail</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">🧪</span><span><b>How to talk:</b> a bug you caught before release, or test cases you wrote.</span></li>
+        <li><span class="emo">🔎</span><span>Mention edge cases — empty input, wrong format, slow network.</span></li>
+        <li><span class="emo">🛡️</span><span>Connect it to quality: fewer bugs, happier users.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I'm quite detail-oriented. While testing our app, I noticed it accepted negative numbers in a quantity field — something nobody had checked. I added validation for negative and empty values, wrote a few test cases, and we shipped without that bug. I like catching small things before users do.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🎤</div>
+        <div>
+          <p class="kicker">Weakness #1</p>
+          <h2>Public Speaking / Presenting</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">✅</span><span><b>Why it's safe:</b> it's a soft skill, fixable, and doesn't hurt your coding ability.</span></li>
+        <li><span class="emo">🗣️</span><span><b>How to talk:</b> own it, then say exactly what you're doing about it.</span></li>
+        <li><span class="emo">📌</span><span>Mention a real step: joined a club, presented in class, recorded yourself.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I get nervous presenting in front of large groups. I noticed it during my project review. So I started presenting my work in small team meetings and practising with recordings. I'm much more comfortable now, though I'm still improving.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🙋</div>
+        <div>
+          <p class="kicker">Weakness #2</p>
+          <h2>Hesitation to Ask for Help</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">✅</span><span><b>Why it's safe:</b> very common for freshers — shows honesty, not incompetence.</span></li>
+        <li><span class="emo">⏱️</span><span><b>How to talk:</b> explain the fix — a time limit before asking.</span></li>
+        <li><span class="emo">🤝</span><span>Show you understand asking early saves the team time.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“Earlier, I'd spend hours stuck on a problem before asking anyone. I realised it was slowing the team down. Now I give myself 30 minutes, and if I'm still stuck I ask with a clear description of what I tried. It has saved a lot of time and I learn faster.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">⚖️</div>
+        <div>
+          <p class="kicker">Weakness #3</p>
+          <h2>Perfectionism — done RIGHT</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">⚠️</span><span><b>Most overused answer.</b> Interviewers hear it 50 times a day.</span></li>
+        <li><span class="emo">✅</span><span>Use it <b>only</b> if you have a real story + real fix.</span></li>
+        <li><span class="emo">🛠️</span><span>Fix: learn to ship a working version first, polish later.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I sometimes over-polish details before finishing the main task. In one project, I spent two days perfecting the UI while the backend was incomplete. Now I follow a rule — get a working version done first, then refine. My delivery speed has improved a lot since.”</p>
+      </div>
+      <div class="note">🚫 <b>Never</b> say “I'm a perfectionist” as a humble-brag with no story. It sounds fake.</div>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🗣️</div>
+        <div>
+          <p class="kicker">Weakness #4</p>
+          <h2>Over-Explaining / Too Much Detail</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">✅</span><span><b>Why it's safe:</b> it's a communication habit, easy to correct.</span></li>
+        <li><span class="emo">🎯</span><span>Fix: answer first, details only if asked.</span></li>
+        <li><span class="emo">📝</span><span>Mention a concrete step — bullet points, 30-second rule.</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“I tend to over-explain when I'm excited about a topic. I noticed it during a team discussion when I lost people in details. Now I give the short answer first and only go deeper if someone asks. I've been practising by summarising my updates in three bullet points.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🌱</div>
+        <div>
+          <p class="kicker">Weakness #5</p>
+          <h2>Limited Industry Experience</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">✅</span><span><b>Best pick for freshers</b> — honest, natural, and expected.</span></li>
+        <li><span class="emo">🔁</span><span>Pivot fast: talk about what you <b>have</b> done — projects, internships, open source.</span></li>
+        <li><span class="emo">🚀</span><span>Show eagerness: “I'm looking forward to learning in a real team.”</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer</span>
+        <p>“As a fresher, I haven't worked on large production systems yet — most of my experience is from academic and personal projects. To prepare, I've built three full-stack projects, used Git for version control, and followed code review practices. I'm confident I can pick up your stack quickly with real-world guidance.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🚫</div>
+        <div>
+          <p class="kicker">Danger zone</p>
+          <h2>Killer Mistakes to Avoid</h2>
+        </div>
+      </div>
+      <ul class="points badlist">
+        <li><span class="emo">❌</span><span>“I'm a perfectionist” — used as a fake strength.</span></li>
+        <li><span class="emo">❌</span><span>“I have no weaknesses.” Instant credibility loss.</span></li>
+        <li><span class="emo">❌</span><span>“I'm too honest / I care too much” — humble-brags.</span></li>
+        <li><span class="emo">❌</span><span>Naming a <b>core skill</b> — “I'm bad at coding” in a coding interview.</span></li>
+        <li><span class="emo">❌</span><span>Blaming others — teachers, teammates, college.</span></li>
+        <li><span class="emo">❌</span><span>A 5-minute story with no ending and no improvement.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 17 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">⏱️</div>
+        <div>
+          <p class="kicker">Fill in the blanks</p>
+          <h2>The 30-Second Script</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">💪</span><span><b>Strength:</b> “My strongest skill is ___. For example, in ___ I ___, which resulted in ___.”</span></li>
+        <li><span class="emo">🌱</span><span><b>Weakness:</b> “My biggest weakness is ___. I noticed it during ___. So I started ___. Now I ___.”</span></li>
+        <li><span class="emo">🎬</span><span><b>Always end with:</b> “That's something I'm actively working on.”</span></li>
+      </ul>
+      <div class="answer">
+        <span class="tag">💬 Ideal Answer (full, ready to copy)</span>
+        <p>“My biggest strength is consistency — I solved a coding problem every day for four months. My weakness is that I used to hesitate to ask for help. Now I time-box myself to 30 minutes and then ask with a clear question, which has made me much faster.”</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 18 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🧘</div>
+        <div>
+          <p class="kicker">Delivery</p>
+          <h2>Body Language &amp; Tone</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">🙂</span><span>Sit straight, smile at the start. Confidence is 50% posture.</span></li>
+        <li><span class="emo">⏸️</span><span>Pause 2 seconds before answering. It looks thoughtful, not slow.</span></li>
+        <li><span class="emo">🚫</span><span>Don't shrink or over-apologise while saying your weakness.</span></li>
+        <li><span class="emo">🗣️</span><span>Talk like a conversation, not like a memorised speech.</span></li>
+        <li><span class="emo">⚖️</span><span>Same energy for both answers — don't get excited then go quiet.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 19 -->
+  <section class="slide">
+    <div class="wrap">
+      <div class="head">
+        <div class="icon sm">🏋️</div>
+        <div>
+          <p class="kicker">Do this before your interview</p>
+          <h2>The 4-Day Practice Drill</h2>
+        </div>
+      </div>
+      <ul class="points">
+        <li><span class="emo">📝</span><span><b>Day 1:</b> Write down 2 strengths + 1 weakness with real examples.</span></li>
+        <li><span class="emo">📱</span><span><b>Day 2:</b> Record yourself on your phone — 45 seconds each.</span></li>
+        <li><span class="emo">👥</span><span><b>Day 3:</b> Say it to a friend. Ask: “Did it sound honest?”</span></li>
+        <li><span class="emo">🎲</span><span><b>Day 4:</b> Mock interview — have someone pick a random weakness.</span></li>
+        <li><span class="emo">🔁</span><span><b>Golden rule:</b> practise <b>out loud</b>, never only in your head.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 20 -->
+  <section class="slide">
+    <div class="wrap center">
+      <div class="icon">🧠</div>
+      <h2>Cheat Sheet</h2>
+      <ul class="points" style="text-align:left; max-width:640px; width:100%;">
+        <li><span class="emo">💪</span><span><b>Strength = Claim + Proof + Result</b></span></li>
+        <li><span class="emo">🌱</span><span><b>Weakness = Name + Action + Progress</b></span></li>
+        <li><span class="emo">⏱️</span><span><b>Be honest · Be brief · Be improving</b></span></li>
+        <li><span class="emo">🙂</span><span><b>End with:</b> “That's something I'm actively working on.”</span></li>
+      </ul>
+      <p class="lead" style="margin-top:22px; font-weight:600; color:#fff;">
+        You don't need to be perfect. You need to be prepared. 💪
+      </p>
+      <p class="small">Good luck — you've got this! 🚀</p>
+    </div>
+  </section>
+
+</div>
+
+<nav>
+  <button id="prev" aria-label="Previous slide">←</button>
+  <span id="counter">1 / 20</span>
+  <button id="next" aria-label="Next slide">→</button>
+</nav>
+
+<div class="hint">← → arrow keys</div>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const bar    = document.getElementById('bar');
+  const counter= document.getElementById('counter');
+  const prevBtn= document.getElementById('prev');
+  const nextBtn= document.getElementById('next');
+  let index = 0;
+
+  function go(n){
+    index = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('active', k === index));
+    counter.textContent = (index + 1) + ' / ' + slides.length;
+    bar.style.width = ((index + 1) / slides.length * 100) + '%';
+    slides[index].scrollTop = 0;
+    prevBtn.disabled = index === 0;
+    nextBtn.disabled = index === slides.length - 1;
+  }
+
+  prevBtn.addEventListener('click', () => go(index - 1));
+  nextBtn.addEventListener('click', () => go(index + 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(index + 1); }
+    if (e.key === 'ArrowLeft'  || e.key === 'PageUp')                    { e.preventDefault(); go(index - 1); }
+    if (e.key === 'Home') go(0);
+    if (e.key === 'End')  go(slides.length - 1);
+  });
+
+  // touch swipe
+  let startX = 0, startY = 0;
+  const deck = document.getElementById('deck');
+  deck.addEventListener('touchstart', e => {
+    startX = e.changedTouches[0].clientX;
+    startY = e.changedTouches[0].clientY;
+  }, {passive:true});
+  deck.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy)) {
+      dx < 0 ? go(index + 1) : go(index - 1);
+    }
+  }, {passive:true});
+
+  go(0);
+</script>
+</body>
+</html>
